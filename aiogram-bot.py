@@ -1,7 +1,9 @@
 import os
+import json
+import string
 
-from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types, executor
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -40,11 +42,15 @@ async def contacts(message: types.Message):
 
 
 @dp.message_handler()
-async def echo_handler(message: types.Message):
-    hello_messages = ['hello', 'привет', 'привіт']
+async def profanity_filter(message: types.Message):
+    profanity_words_list = json.load(open('profanity_filter/profanity.json'))
 
-    if message.text.lower() in hello_messages:
-        await message.answer('Hi, it\'s BotoPizza!')
+    if {
+        word.lower().translate(str.maketrans('', '', string.punctuation))
+        for word in message.text.split(' ')
+    }.intersection(set(profanity_words_list)):
+        await message.reply('Profanity is forbidden!')
+        await message.delete()
 
 
 executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
