@@ -7,7 +7,7 @@ async def on_startup(_):
     print('Your bot is online')
 
 client_handlers.register_client_handlers(dp)
-# admin_handlers.register_admin_handlers(dp)
+admin_handlers.register_admin_handlers(dp)
 common_handlers.register_common_handlers(dp)
 
 executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
