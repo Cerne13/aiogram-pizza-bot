@@ -1,5 +1,6 @@
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
@@ -14,6 +15,16 @@ class FSMAdmin(StatesGroup):
 async def sfm_start(message: types.Message):
     await FSMAdmin.photo.set()
     await message.reply('Please provide an image')
+
+
+# @dp.message_handler(state='*', commands=['cancel'])
+# @dp.message_handler(Text(equals='cancel', ignore_case=True), state='*')
+async def cancel_handler(message: types.Message, state: FSMContext):
+    curr_state = await state.get_state()
+    if not curr_state:
+        return
+    await state.finish()
+    await message.reply('Ok. The process is successfully canceled')
 
 
 # @dp.message_handler(content_types=['photo'], state=FSMAdmin.photo)
@@ -56,6 +67,10 @@ async def load_price(message: types.Message, state: FSMContext):
 
 def register_admin_handlers(dp: Dispatcher):
     dp.register_message_handler(sfm_start, commands=['upload'], state=None)
+
+    dp.register_message_handler(cancel_handler, state='*', commands=['cancel'])
+    dp.register_message_handler(cancel_handler, Text(equals='cancel', ignore_case=True), state='*')
+    
     dp.register_message_handler(load_photo, content_types=['photo'], state=FSMAdmin.photo)
     dp.register_message_handler(load_name, state=FSMAdmin.name)
     dp.register_message_handler(load_description, state=FSMAdmin.description)
