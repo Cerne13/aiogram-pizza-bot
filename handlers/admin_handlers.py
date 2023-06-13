@@ -4,6 +4,7 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from create_bot import bot
+from db import add_to_db
 
 ID = None
 
@@ -78,9 +79,7 @@ async def load_price(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['price'] = float(message.text.strip())
 
-        async with state.proxy() as data:
-            await message.reply(str(data))
-
+        await add_to_db(state=state)
         await state.finish()
 
 
