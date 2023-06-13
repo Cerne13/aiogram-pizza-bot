@@ -1,6 +1,7 @@
 from aiogram import types, Dispatcher
 from aiogram.types import ReplyKeyboardRemove
 from create_bot import bot
+from db import get_menu
 
 from keyboards import kb_client
 
@@ -28,10 +29,10 @@ async def contacts(message: types.Message):
     )
 
 
-# @dp.message_handler(commands=['menu'])
-# async def pizza_menu(message):
-#     for ret in cur.execute('select * from menu').fetchall():
-#         await bot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nDescription: {ret[2]}\nPrice: {ret[-1]}')
+async def pizza_menu(message):
+    await get_menu(message)
+    await message.delete()
+
 
 async def easter_egg(message: types.Message):
     await bot.send_message(
@@ -49,5 +50,7 @@ def register_client_handlers(dp: Dispatcher):
     dp.register_message_handler(start, commands=['start', 'help'])
     dp.register_message_handler(work_hours, commands=['working_hours'])
     dp.register_message_handler(contacts, commands=['contacts'])
+
+    dp.register_message_handler(pizza_menu, commands=['menu'])
 
     dp.register_message_handler(easter_egg, lambda message: 'easteregg' in message.text.strip().lower())

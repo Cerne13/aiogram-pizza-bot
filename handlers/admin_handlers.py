@@ -5,6 +5,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from create_bot import bot
 from db import add_to_db
+from keyboards import kb_admin
 
 ID = None
 
@@ -21,7 +22,11 @@ async def make_changes_command(message: types.Message):
     global ID
     ID = message.from_user.id
 
-    await bot.send_message(message.from_user.id, 'What do you want, oh mighty Admin?')
+    await bot.send_message(
+        message.from_user.id,
+        'What do you want, oh mighty Admin?',
+        reply_markup=kb_admin
+    )
     await message.delete()
 
 
