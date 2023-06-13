@@ -33,8 +33,21 @@ async def contacts(message: types.Message):
 #     for ret in cur.execute('select * from menu').fetchall():
 #         await bot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nDescription: {ret[2]}\nPrice: {ret[-1]}')
 
+async def easter_egg(message: types.Message):
+    await bot.send_message(
+        message.from_user.id,
+        'Yay! You have found an easter egg. Use promo code "EASTER" to get 5% discount.'
+    )
+    await bot.send_photo(
+        message.from_user.id,
+        photo='https://museumhack.com/wp-content/uploads/2023/01/online-pizza-party.jpg'
+    )
+    await message.delete()
+
 
 def register_client_handlers(dp: Dispatcher):
     dp.register_message_handler(start, commands=['start', 'help'])
     dp.register_message_handler(work_hours, commands=['working_hours'])
     dp.register_message_handler(contacts, commands=['contacts'])
+
+    dp.register_message_handler(easter_egg, lambda message: 'easteregg' in message.text.strip().lower())
