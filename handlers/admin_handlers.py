@@ -2,10 +2,13 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+import db
 from create_bot import bot
-from db import add_to_db
+from db import add_to_db, delete_db_item
 from keyboards import kb_admin
+from create_bot import dp
 
 ID = None
 
@@ -88,6 +91,28 @@ async def load_price(message: types.Message, state: FSMContext):
         await state.finish()
 
 
+# @dp.callback_query_handler(lambda x: x.data.startswith('del '))
+async def delete_cb_handler(callback: types.CallbackQuery):
+    db_data_clean = callback.data.replace('del ', '')
+
+    await db.delete_db_item(db_data_clean)
+    await callback.answer(text=f'{db_data_clean} item deleted.', show_alert=True)
+
+
+async def delete_item(message: types.Message):
+    if message.from_user.id == ID:
+        read = await db.read_all_from_db()
+        for ret in read:
+            await bot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nDescription: {ret[2]}\nPrice: {ret[-1]}')
+            await bot.send_message(
+                message.from_user.id,
+                text='^^^',
+                reply_markup=InlineKeyboardMarkup().add(
+                    InlineKeyboardButton(f'Delete {ret[1]}', callback_data=f'del {ret[1]}'),
+                ),
+            )
+
+
 def register_admin_handlers(dp: Dispatcher):
     dp.register_message_handler(sfm_start, commands=['upload'], state=None)
 
@@ -99,4 +124,8 @@ def register_admin_handlers(dp: Dispatcher):
     dp.register_message_handler(load_description, state=FSMAdmin.description)
     dp.register_message_handler(load_price, state=FSMAdmin.price)
 
+    dp.register_message_handler(delete_item, commands=['delete'])
+    dp.register_callback_query_handler(delete_cb_handler, lambda x: x.data.startswith('del '))
+
     dp.register_message_handler(make_changes_command, commands=['is_admin'], is_chat_admin=True)
+

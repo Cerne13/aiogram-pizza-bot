@@ -24,3 +24,12 @@ async def add_to_db(state):
 async def get_menu(message: types.Message):
     for ret in cur.execute('select * from menu').fetchall():
         await bot.send_photo(message.from_user.id, ret[0], f'{ret[1]}\nDescription: {ret[2]}\nPrice: {ret[-1]}')
+
+
+async def read_all_from_db():
+    return cur.execute('select * from menu').fetchall()
+
+
+async def delete_db_item(data):
+    cur.execute('DELETE FROM menu WHERE name == ?', (data,))
+    db.commit()
